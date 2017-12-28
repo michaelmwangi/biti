@@ -38,7 +38,14 @@ namespace biti {
             perror("epoll_ctl");
             exit(EXIT_FAILURE);
         }
-
+        // TODO
+        /*
+            1. What if the file is not a text file
+            2. What if the file is deleted
+            3. What if we add a content at any other place other than the tail end of the file
+            4. What if we start watching a file which already has data
+            5. What if the file that we are watching is gets log rotated
+        */
         while(true){
             int res = epoll_wait(efd, &event, 64, -1);
 
@@ -63,7 +70,6 @@ namespace biti {
                         auto it = store.find(_fd);
                         if(it != store.end()){
                             auto fl = std::move(it->second);
-                            std::cout<<fl->fd<<fl->fPath<<fl->curPos<<std::endl;
                             store[_fd] = std::move(fl);
                         }else{
                             std::cerr<<"Descriptor "<<_fd<<" not found in store"<<std::endl;

@@ -1,3 +1,6 @@
+#ifndef FILE_H
+#define FILE_H
+
 #include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -34,3 +37,6 @@ namespace biti{
         }
     };
 }
+
+
+#endif
