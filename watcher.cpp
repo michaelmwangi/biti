@@ -46,6 +46,7 @@ namespace biti {
             4. What if we start watching a file which already has data
             5. What if the file that we are watching is gets log rotated
             6. How do we store our current state in case we crash or we are restarted
+            
         */
         while(true){
             int res = epoll_wait(efd, &event, 64, -1);
