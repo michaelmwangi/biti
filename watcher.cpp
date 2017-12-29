@@ -16,28 +16,12 @@ namespace biti {
                 perror("inotify_add_watch");
             }
             
-            store.insert(std::make_pair(wd, std::make_unique<File>(wd, fpath)));
-
-            
+            store.insert(std::make_pair(wd, std::make_unique<File>(wd, fpath)));            
         }
     }
 
     void Watcher::watch(){
-        struct epoll_event event;
-        event.events = EPOLLIN | EPOLLET;
-        int efd = epoll_create(1);
-
-        if(efd == -1){
-            perror("epoll_create");
-            exit(EXIT_FAILURE);
-        }
-
-        int s = epoll_ctl(efd, EPOLL_CTL_ADD, inotify_fd, &event);
         
-        if(s == -1){
-            perror("epoll_ctl");
-            exit(EXIT_FAILURE);
-        }
         // TODO
         /*
             1. What if the file is not a text file
@@ -48,20 +32,14 @@ namespace biti {
             6. How do we store our current state in case we crash or we are restarted
             
         */
+        
+        // The loop blocks on read() call until we have an event available on the inotify_fd 
         while(true){
-            int res = epoll_wait(efd, &event, 64, -1);
-
-            if(res ==  -1){
-                perror("epoll_wait");
-                continue;
-            }
-            
-            while(true){
                 char buf[BUF_SIZE];
                 int len = read(inotify_fd, buf, sizeof buf);
 
                 if(len <= 0){
-                    break;
+                    continue;
                 }
 
                 const struct inotify_event *evt;
@@ -80,6 +58,5 @@ namespace biti {
                     }
                 }
             }
-        }
     }
 }
