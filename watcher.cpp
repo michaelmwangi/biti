@@ -29,8 +29,7 @@ namespace biti {
             3. What if we add a content at any other place other than the tail end of the file
             4. What if we start watching a file which already has data
             5. What if the file that we are watching is gets log rotated
-            6. How do we store our current state in case we crash or we are restarted
-            
+            6. How do we store our current state in case we crash or we are restarted            
         */
         
         // The loop blocks on read() call until we have an event available on the inotify_fd 
