@@ -3,6 +3,7 @@
 
 #include <unistd.h> // pread()
 #include <vector>
+#include <memory>
 #include "file.h" 
 #include "consts.h"
 
@@ -10,11 +11,11 @@
 namespace biti{
     class FileOps{
         private:
-            File &file;
-            std::vector<std::string> split_buf();
-        public:
-            FileOps(File &file);
+            std::shared_ptr<File> file;
             void read_file();
+            std::vector<std::string> split_buf();            
+        public:
+            FileOps(std::shared_ptr<File> file);            
             void evaluate();
     };    
 }

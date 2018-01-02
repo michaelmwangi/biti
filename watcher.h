@@ -16,7 +16,7 @@ namespace biti {
     class Watcher {
         private:
             int inotify_fd;
-            std::unordered_map<int, std::unique_ptr<File>> store;
+            std::unordered_map<int, std::shared_ptr<File>> store;
         public:
             Watcher(std::vector<std::string>);
             void watch();
