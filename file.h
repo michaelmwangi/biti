@@ -17,7 +17,7 @@ namespace biti{
         std::string delimeter; 
         std::string buf; // the current data we have extracted from file but not yet processed
 
-        File(int wd, std::string path, std::string del="\n"){
+        File(int wd, std::string path, std::string del=","){
             wd = wd;
             fPath = path;
             curPos = 0;

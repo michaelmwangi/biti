@@ -37,11 +37,19 @@ namespace biti {
             // seems we were not able to watch any file lets throw and exc
             std::cerr<<"NO files to watch"<<std::endl;
         }else{
+            // process files for data already in the file
+            // get size of files 
+            // read data upto the size of each file 
+            for (auto iter : store){
+                FileOps fileops(iter.second);
+                fileops.evaluate();
+            }
+            
+            // wait for new events
             // The loop blocks on read() call until we have an event available on the inotify_fd 
             while(true){
                 char buf[BUF_SIZE];
                 int len = read(inotify_fd, buf, sizeof buf);
-
                 if(len <= 0){
                     continue;
                 }
