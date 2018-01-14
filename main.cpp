@@ -12,16 +12,20 @@
 #include <string>
 #include "file.h"
 #include "watcher.h"
+#include "logger.h"
 
 
 int main(int argc, char **argv){    
     // This is just a stub we are not even going to do any error checking
-    if (argc == 2){
+    if (argc == 3){
         std::vector<std::string> fpaths = {argv[1]};
+        std::string log_path = argv[2];
+        biti::cur_logger = std::make_shared<biti::FileLogger>(log_path);
+        // biti::Logger::create_file_logger(log_path);
         biti::Watcher watcher(fpaths);
         watcher.watch();
     }else{
-        std::cout<<"Please pass in the file path as an argument"<<std::endl;
+        std::cout<<"Please pass in the file path and log path as an argument in that order"<<std::endl;
     }
     
     return 0;

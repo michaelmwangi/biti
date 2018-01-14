@@ -11,13 +11,13 @@
 namespace biti{
     class FileOps{
         private:
-            std::shared_ptr<File> file;
-            void read_file(long);
+            File file;            
             std::vector<std::string> split_buf();            
+            void read_file(int);
         public:
-            FileOps(std::shared_ptr<File> file);            
+            FileOps(File file);     
             void evaluate();
-            long get_file_size();
+            int get_file_size_delta();
     };    
 }
 
