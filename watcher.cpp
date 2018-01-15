@@ -16,7 +16,7 @@ namespace biti {
             // make sure we addd only regular files
             struct stat stbuf;
             int res = stat(fpath.c_str(), &stbuf);
-            LOGGER<<"analyzing "<<fpath<<std::endl;
+
             if (res == 0){
                 if(! S_ISREG(stbuf.st_mode)){
                     std::cerr<<fpath<<" is not a regular file"<<std::endl;

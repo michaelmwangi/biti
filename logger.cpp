@@ -2,11 +2,8 @@
 
 namespace biti {
    std::shared_ptr<Logger> Logger::get_current_logger(){
+        assert(cur_logger != nullptr);
         return cur_logger;
-   }
-
-   void Logger::create_file_logger(const std::string &fname){
-        cur_logger = std::make_shared<FileLogger>(fname);
    }
 
    FileLogger::FileLogger(const std::string &filepath):

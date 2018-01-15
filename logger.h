@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <unordered_map>
+#include <assert.h>
 
 namespace biti {
     
@@ -14,6 +15,7 @@ namespace biti {
             static std::shared_ptr<Logger> get_current_logger();
 
             static void create_file_logger(const std::string &);
+
 
             Logger() = default;
             
@@ -34,9 +36,9 @@ namespace biti {
             std::ostream &get_stream() override;
     };
 
-    static std::shared_ptr<Logger> cur_logger = nullptr;
+    extern std::shared_ptr<Logger> cur_logger;
 
-    #define LOGGER (cur_logger->get_stream())
+    #define LOGGER (Logger::get_current_logger()->get_stream())
 }
 
 #endif

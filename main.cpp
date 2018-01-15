@@ -14,6 +14,9 @@
 #include "watcher.h"
 #include "logger.h"
 
+namespace biti{
+    std::shared_ptr<Logger> cur_logger = nullptr; 
+}
 
 int main(int argc, char **argv){    
     // This is just a stub we are not even going to do any error checking
@@ -21,7 +24,6 @@ int main(int argc, char **argv){
         std::vector<std::string> fpaths = {argv[1]};
         std::string log_path = argv[2];
         biti::cur_logger = std::make_shared<biti::FileLogger>(log_path);
-        // biti::Logger::create_file_logger(log_path);
         biti::Watcher watcher(fpaths);
         watcher.watch();
     }else{
