@@ -4,7 +4,7 @@
 namespace biti {
     Watcher::Watcher(std::vector<std::string> &filepaths)
     {
-        
+        LOGGER->write("New starting up", LogLevel::INFO);
         inotify_fd = inotify_init();
 
         if(inotify_fd == -1){

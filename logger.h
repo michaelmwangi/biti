@@ -10,6 +10,15 @@
 
 namespace biti {
     
+    enum class LogLevel{
+        NONE,
+        DEBUG,
+        INFO,
+        WARNING,
+        ERROR,
+        SEVERE
+    };
+    
     class Logger {
         public:
             static std::shared_ptr<Logger> get_current_logger();
@@ -20,7 +29,7 @@ namespace biti {
             Logger() = default;
             
             virtual ~Logger() = default;
-            virtual std::ostream &get_stream() = 0;
+            virtual void write(const std::string&, LogLevel) = 0;
 
             Logger(const Logger&) = delete;
             Logger(Logger &&) = delete;
@@ -31,14 +40,16 @@ namespace biti {
     class FileLogger: public Logger{
         private:
             std::ofstream log_stream;
+            LogLevel log_level;
         public:
-            FileLogger(const std::string &) ;
-            std::ostream &get_stream() override;
+            FileLogger(const std::string &, LogLevel) ;
+            void write(const std::string&, LogLevel) override;
+            
     };
 
     extern std::shared_ptr<Logger> cur_logger;
 
-    #define LOGGER (Logger::get_current_logger()->get_stream())
+    #define LOGGER (Logger::get_current_logger())
 }
 
 #endif

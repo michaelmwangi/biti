@@ -20,10 +20,11 @@ namespace biti{
 
 int main(int argc, char **argv){    
     // This is just a stub we are not even going to do any error checking
+
     if (argc == 3){
         std::vector<std::string> fpaths = {argv[1]};
         std::string log_path = argv[2];
-        biti::cur_logger = std::make_shared<biti::FileLogger>(log_path);
+        biti::cur_logger = std::make_shared<biti::FileLogger>(log_path, biti::LogLevel::DEBUG);    
         biti::Watcher watcher(fpaths);
         watcher.watch();
     }else{

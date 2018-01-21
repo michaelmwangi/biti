@@ -6,16 +6,18 @@ namespace biti {
         return cur_logger;
    }
 
-   FileLogger::FileLogger(const std::string &filepath):
-        log_stream{filepath, std::ios::out | std::ios::app}
+   FileLogger::FileLogger(const std::string &filepath, LogLevel loglevel):
+        log_stream{filepath, std::ios::out | std::ios::app}, log_level{loglevel}
     {
         if(!log_stream.is_open()){
             // set error here
         }
     }
 
-   std::ostream &FileLogger::get_stream(){
-       return log_stream;
-    }
+   void FileLogger::write(const std::string & data, LogLevel loglevel){
+       if(log_level != LogLevel::NONE && (loglevel == log_level || log_level == LogLevel::DEBUG)){           
+           log_stream << data <<std::endl;
+       }
+   }
    
 }
