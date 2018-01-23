@@ -47,12 +47,12 @@ namespace biti {
         // split the buffer string into segments separated by the set delimeter
         // match each segement with the set pattern and trigger the attached backend
         // after matching each segment discard it 
-        int delta = get_file_size_delta();
-        if (delta < 0){
+        int delta_sz = get_file_size_delta();
+        if (delta_sz < 0){
             // no change detected
             return;
         }
-        read_file(delta);
+        read_file(delta_sz);
         auto tokens = split_buf();
         for(auto token : tokens){
             // pattern match and trigger backend if found

@@ -1,15 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <map>
-#include <memory>
-#include <sys/inotify.h>
-#include <sys/epoll.h> // epoll stuf
-#include <unistd.h> // close() read()
-#include "consts.h"
-
-#include <vector>
-#include <string>
 #include "file.h"
 #include "watcher.h"
 #include "logger.h"

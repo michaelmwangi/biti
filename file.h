@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <vector>
 #include "consts.h"
 
 namespace biti{
@@ -15,17 +16,13 @@ namespace biti{
         int err; // the last error number 
         int size; // the size of the file since our last read
         std::string fPath; // the file path)
-        std::string delimeter; 
+        std::string delimeter; // the delimeter that separates the tokens we want to pick eg new line (\n) 
+        std::vector<std::string> patterns; // patterns that we are matching the tokens against
         std::string buf; // the current data we have extracted from file but not yet processed
 
-        File(int wd, std::string path, std::string del=","){
-            wd = wd;
-            fPath = path;
-            curPos = 0;
-            err = 0;
-            size = 0;
-            delimeter = del;            
-
+        File(int wd, std::string path, std::string del=","):
+            wd{wd},fPath{path}, curPos{0}, err{0}, size{0}, delimeter{del}, patterns {}
+        {        
             int f_desc = open(fPath.c_str(), O_RDONLY);
             if(f_desc == -1){
                 perror("Open");
