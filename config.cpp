@@ -7,7 +7,6 @@ namespace biti{
     {
         if(!config_file.good()){
             LOGGER->write("Cannot open/read config file "+fname, LogLevel::SEVERE);
-            exit(1);
         }else{
             LOGGER->write("Using config file "+fname, LogLevel::INFO);
         }
@@ -25,7 +24,6 @@ namespace biti{
             std::stringstream err;
             err << e.what() << e.byte;
             LOGGER->write(err.str(), LogLevel::SEVERE);
-            exit(1);
         }
         
         // json_config.

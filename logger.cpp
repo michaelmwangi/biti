@@ -18,6 +18,10 @@ namespace biti {
        if(log_level != LogLevel::NONE && (loglevel == log_level || log_level == LogLevel::DEBUG)){           
            log_stream << data <<std::endl;
        }
+
+       if(loglevel == LogLevel::SEVERE){
+           exit(1)
+       }
    }
    
 }
