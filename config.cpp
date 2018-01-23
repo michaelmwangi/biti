@@ -18,7 +18,16 @@ namespace biti{
     }
 
     void Config::process(){
-        json j;
-        config_file >> j;
+        json json_config;
+        try{
+            config_file >> json_config;
+        }catch (json::parse_error &e){
+            std::stringstream err;
+            err << e.what() << e.byte;
+            LOGGER->write(err.str(), LogLevel::SEVERE);
+            exit(1);
+        }
+        
+        // json_config.
     }
 }
