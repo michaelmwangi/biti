@@ -30,8 +30,9 @@ namespace biti {
 
             if(wd == -1){
                 LOGGER->write("Cannot watch "+fobj.fpath+" : "+strerror(errno), LogLevel::ERROR);
-            }else{
+            }else{                
                 store.insert(std::make_pair(wd, std::make_unique<FileOps>(std::move(fobj))));            
+                LOGGER->write("Added "+fobj.fpath+" to the watch list", LogLevel::INFO);
             }                        
         }        
     }
