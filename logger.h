@@ -5,8 +5,9 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <cstring>
 #include <unordered_map>
-#include <assert.h>
+
 
 namespace biti {
     
@@ -39,7 +40,7 @@ namespace biti {
 
     class FileLogger: public Logger{
         private:
-            std::ofstream log_stream;
+            std::fstream log_stream;
             LogLevel log_level;
         public:
             FileLogger(const std::string &, LogLevel) ;

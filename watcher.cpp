@@ -2,40 +2,36 @@
 #include "fileops.h"
 
 namespace biti {
-    Watcher::Watcher(std::vector<std::string> &filepaths)
+    Watcher::Watcher(Config &config)
     {
-        LOGGER->write("New starting up", LogLevel::INFO);
         inotify_fd = inotify_init();
 
         if(inotify_fd == -1){
             perror("inotify_init");
             exit(EXIT_FAILURE);
         }
-        
-        for(auto fpath : filepaths){
-            // make sure we addd only regular files
+        auto fobjs = config.get_file_configs();
+        for(auto fobj : fobjs){
+            // make sure we add only regular files
             struct stat stbuf;
-            int res = stat(fpath.c_str(), &stbuf);
+            int res = stat( fobj.fpath.c_str(), &stbuf);
 
             if (res == 0){
                 if(! S_ISREG(stbuf.st_mode)){
-                    std::cerr<<fpath<<" is not a regular file"<<std::endl;
+                    LOGGER->write(fobj.fpath+" is not a regular file .. ignoring!", LogLevel::ERROR);                    
                     continue;
                 }
-            }else{
-                perror("stat");
-                std::cerr<<"Could not get "<<fpath<<" properties"<<std::endl;
+            }else{                
+                LOGGER->write("Could not get "+fobj.fpath+" properties", LogLevel::ERROR);
                 continue;
             }
 
-            int wd = inotify_add_watch(inotify_fd, fpath.c_str(), IN_MODIFY);
+            int wd = inotify_add_watch(inotify_fd, fobj.fpath.c_str(), IN_MODIFY);
 
             if(wd == -1){
-                std::cerr<<"Cannot watch "+fpath<<std::endl;
-                perror("inotify_add_watch");
+                LOGGER->write("Cannot watch "+fobj.fpath+" : "+strerror(errno), LogLevel::ERROR);
             }else{
-                File fileobj(wd, fpath);
-                store.insert(std::make_pair(wd, std::make_unique<FileOps>(std::move(fileobj))));            
+                store.insert(std::make_pair(wd, std::make_unique<FileOps>(std::move(fobj))));            
             }                        
         }        
     }
@@ -60,8 +56,7 @@ namespace biti {
             6. How do we store our current state in case we crash or we are restarted            
         */
         if(store.empty()){
-            // seems we were not able to watch any file lets throw and exc
-            std::cerr<<"NO files to watch"<<std::endl;
+            LOGGER->write("There are no files to watch!!", LogLevel::SEVERE);
         }else{
 
             // process files for data already in the file
