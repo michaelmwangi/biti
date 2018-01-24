@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <ctime>
+#include <chrono>
 #include <cstring>
 #include <unordered_map>
 
@@ -31,7 +33,8 @@ namespace biti {
             
             virtual ~Logger() = default;
             virtual void write(const std::string&, LogLevel) = 0;
-
+            std::string get_log_level(LogLevel);
+            
             Logger(const Logger&) = delete;
             Logger(Logger &&) = delete;
             Logger &operator =(const Logger&) = delete;
