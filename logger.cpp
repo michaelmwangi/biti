@@ -46,6 +46,7 @@ namespace biti {
        std::time_t ltime = std::chrono::system_clock::to_time_t(now);
        auto ptime = std::ctime(&ltime);
        if(log_level != LogLevel::NONE && (loglevel == log_level || log_level == LogLevel::DEBUG)){           
+        //    log_stream<<data<<std::endl;
            log_stream <<"["<<ptime<<"]"<<" "<<"["<<get_log_level(loglevel)<<"]"<< data <<std::endl;
        }
 
