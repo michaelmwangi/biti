@@ -19,7 +19,8 @@ At the moment am keeping things pretty straight forward and compiling can be eas
 
 # Dependecies
 
-At the moment biti relies on inotify for notifications on file changes
+- inotify for notifications on file changes
+- https://github.com/nlohmann/json for parsing the json config
 
 # TODO
 1. Attach email backend
@@ -27,4 +28,4 @@ At the moment biti relies on inotify for notifications on file changes
 3. Add Cmake config for building
 4. Explore ways to add backends in a scaleable manner
 5. Add performance numbers 
-
+6. Add tests and coverage stuff
