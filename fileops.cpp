@@ -15,7 +15,7 @@ namespace biti {
     void FileOps::read_file(int bytesread){        
         char store[BUF_SIZE] = {};
         int tot_read = 0;
-        int num_read = pread(file.fd, store,  BUF_SIZE, file.curPos);
+        int num_read = pread(file.fd, store,  BUF_SIZE, file.curpos);
         tot_read = num_read;
         while(tot_read <= bytesread){
             if (num_read <= 0){
@@ -28,12 +28,12 @@ namespace biti {
                 if (tot_read < bytesread){
                     // we still have more data to consume
                     std::fill(store, store+BUF_SIZE, '\0');
-                    num_read = pread(file.fd, store,  BUF_SIZE, file.curPos);
+                    num_read = pread(file.fd, store,  BUF_SIZE, file.curpos);
                     tot_read += num_read;
                 }
 
                 file.buf += store; 
-                file.curPos += tot_read;   
+                file.curpos += tot_read;   
 
                 if (tot_read == bytesread){
                     break;
@@ -52,15 +52,20 @@ namespace biti {
         // match each segement with the set pattern and trigger the attached backend
         // after matching each segment discard it 
         int delta_sz = get_file_size_delta();
-        if (delta_sz < 0){
+        LOGGER->write("Size of new changes on file "+file.fpath+" "+std::to_string(delta_sz)+" bytes", LogLevel::DEBUG);
+        if (delta_sz <= 0){            
             // no change detected
+            LOGGER->write("No changes detected on file "+file.fpath, LogLevel::DEBUG);
             return;
         }
         read_file(delta_sz);
         auto tokens = split_buf();
+        
+        // loop through each token and do pattern match and finally purge the token from buffer
         for(auto token : tokens){
             // pattern match and trigger backend if found
-            LOGGER->write("Evaluating "+file.fpath, LogLevel::INFO);
+            pattern_match(token);
+
             // finally purge token stem from buffer
             int pos = file.buf.find(token);
             if(pos != std::string::npos){
@@ -74,7 +79,8 @@ namespace biti {
     }
 
     /*
-        Splits the buffer into tokens according to the delimeter passed
+        Splits the file changes that we just read from the file into tokens according to the delimeter
+        passed during configuration for this particular file
     */     
     std::vector<std::string> FileOps::split_buf(){
         std::vector<std::string> tokens;
@@ -88,6 +94,18 @@ namespace biti {
         return tokens;
     }
     
+    void FileOps::pattern_match(const std::string &token){
+        for(auto &pat : file.patterns){
+            LOGGER->write("Matching "+pat+" against "+token+" in file "+file.fpath, LogLevel::DEBUG);
+            auto pos = token.find(pat);
+            if(pos == std::string::npos){
+                LOGGER->write("Match not found for pattern "+pat+" in file "+file.fpath, LogLevel::DEBUG);
+            }else{
+                LOGGER->write("Match found for pattern "+pat+" in file "+file.fpath+" triggering backend ", LogLevel::DEBUG);
+            }
+        }
+    }
+
     /*
         Returns the file size change since the last read
     */
@@ -102,7 +120,7 @@ namespace biti {
                 int delta = 0;
                 if(sz < file.size){
                     // file was truncated                    
-                    file.curPos = 0;
+                    file.curpos = 0;
                     delta = sz;
                 }else{
                     delta = sz - file.size;
@@ -118,5 +136,12 @@ namespace biti {
     */
     std::string FileOps::get_file_name(){
         return file.fpath;
+    }
+
+    /*
+        Get the file descriptor
+    */
+    int FileOps::get_file_fd(){
+        return file.fd;
     }
 }

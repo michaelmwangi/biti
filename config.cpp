@@ -12,10 +12,10 @@ namespace biti{
             std::cout<<"Using config file "+fname<<std::endl;
             
             // fill map of known delimeters
-            known_delimeters.insert(std::make_pair("\n", "NEWLINE"));
-            known_delimeters.insert(std::make_pair(",", "COMMA"));
-            known_delimeters.insert(std::make_pair(";", "SEMICOLON"));
-            known_delimeters.insert(std::make_pair(":", "COLON"));
+            known_delimeters.insert(std::make_pair("NEWLINE", "\n"));
+            known_delimeters.insert(std::make_pair("COMMA", ","));
+            known_delimeters.insert(std::make_pair("SEMICOLON", ";"));
+            known_delimeters.insert(std::make_pair("COLON", ":"));
         }
     }
 
@@ -80,6 +80,10 @@ namespace biti{
             std::vector<std::string> _pats;
             for(auto p_iter=pats.begin();p_iter != pats.end(); p_iter++){
                 _pats.push_back(*p_iter);
+            }
+            auto it = known_delimeters.find(del);
+            if(it != known_delimeters.end()){
+                del = it->second;
             }
             file_configs.emplace_back(fpath, del, _pats);
         }

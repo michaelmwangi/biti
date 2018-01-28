@@ -16,7 +16,7 @@ namespace biti{
     struct File {
         int fd; // the open file descriptor
         int wd; // the watch file desc // inotify stuff        
-        int curPos; // the current file position                
+        int curpos; // the current file position                
         int size; // the size of the file since our last read
         int err; // the last error number // a error number of zero means that evrythinhg is good 
         std::string errmsg; // the last error message we got while operating on this file
@@ -26,7 +26,7 @@ namespace biti{
         std::string buf; // the current data we have extracted from file but not yet processed
 
         File(std::string path, std::string del, std::vector<std::string> &patterns):
-            wd{-1},fpath{path}, curPos{0}, err{0}, size{0}, delimeter{del}, patterns {}
+            wd{-1},fpath{path}, curpos{0}, err{0}, size{0}, delimeter{del}, patterns {patterns}
         {        
             int f_desc = open(fpath.c_str(), O_RDONLY);
             if(f_desc == -1){

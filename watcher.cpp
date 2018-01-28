@@ -14,7 +14,6 @@ namespace biti {
             // make sure we add only regular files
             struct stat stbuf;
             int res = stat( fobj.fpath.c_str(), &stbuf);
-
             if (res == 0){
                 if(! S_ISREG(stbuf.st_mode)){
                     LOGGER->write(fobj.fpath+" is not a regular file .. ignoring!", LogLevel::ERROR);                    
@@ -39,6 +38,9 @@ namespace biti {
     Watcher::~Watcher(){
 
         if(inotify_fd > 0){
+            for(auto& it : store){
+                inotify_rm_watch(it.second->get_file_fd(), it.first);
+            }
             close(inotify_fd);
         }
     }
