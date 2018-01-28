@@ -5,10 +5,9 @@ namespace biti {
     Watcher::Watcher(Config &config)
     {
         inotify_fd = inotify_init();
-
         if(inotify_fd == -1){
             perror("inotify_init");
-            exit(EXIT_FAILURE);
+            exit(1);
         }
         auto fobjs = config.get_file_configs();
         for(auto fobj : fobjs){
@@ -31,8 +30,8 @@ namespace biti {
             if(wd == -1){
                 LOGGER->write("Cannot watch "+fobj.fpath+" : "+strerror(errno), LogLevel::ERROR);
             }else{                
-                store.insert(std::make_pair(wd, std::make_unique<FileOps>(std::move(fobj))));            
-                LOGGER->write("Added "+fobj.fpath+" to the watch list", LogLevel::INFO);
+                LOGGER->write("Adding "+fobj.fpath+" to the watch list", LogLevel::INFO);
+                store.insert(std::make_pair(wd, std::make_unique<FileOps>(std::move(fobj))));                            
             }                        
         }        
     }
@@ -59,7 +58,7 @@ namespace biti {
         if(store.empty()){
             LOGGER->write("There are no files to watch!!", LogLevel::SEVERE);
         }else{
-
+            LOGGER->write("Starting the nights watch", LogLevel::DEBUG);
             // process files for data already in the file
             for (const auto &iter : store){
                 iter.second->evaluate();
@@ -73,7 +72,6 @@ namespace biti {
                 if(len <= 0){
                     continue;
                 }
-
                 const struct inotify_event *evt;
                 for(char *ptr=buf;ptr < buf+len;ptr += sizeof(struct inotify_event)+evt->len){
                     evt = reinterpret_cast<inotify_event *>(ptr);
@@ -82,10 +80,12 @@ namespace biti {
                         auto it = store.find(_wd);
                         if(it != store.end()){
                             auto fileop = std::move(it->second);
+                            LOGGER->write("Changes detected in "+fileop->get_file_name()+" proceeding to evaluate", LogLevel::DEBUG);
                             fileop->evaluate();
+                            LOGGER->write("Finished evaluating "+fileop->get_file_name(), LogLevel::DEBUG);
                             store[_wd] = std::move(fileop);
                         }else{
-                            std::cerr<<"Descriptor "<<_wd<<" not found in store"<<std::endl;
+                            LOGGER->write("Watch descriptor "+std::to_string(_wd)+" was not found in store ", LogLevel::ERROR);
                         }
 
                     }

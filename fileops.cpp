@@ -43,6 +43,10 @@ namespace biti {
         
     }
 
+    /*
+        evaluates the file changes and checks for matching configured patterns. 
+        if a pattern is matched trigger the configured backend
+    */
     void FileOps::evaluate(){
         // split the buffer string into segments separated by the set delimeter
         // match each segement with the set pattern and trigger the attached backend
@@ -56,7 +60,7 @@ namespace biti {
         auto tokens = split_buf();
         for(auto token : tokens){
             // pattern match and trigger backend if found
-
+            LOGGER->write("Evaluating "+file.fpath, LogLevel::INFO);
             // finally purge token stem from buffer
             int pos = file.buf.find(token);
             if(pos != std::string::npos){
@@ -67,11 +71,11 @@ namespace biti {
                 std::cerr<<"How did I get here!!"<<std::endl;
             }                                         
         }
-        
-        // std::cout<<"The final buf "<<file.buf<<std::endl;
     }
 
-    // splits the buffer into tokens according to the delimeter passed
+    /*
+        Splits the buffer into tokens according to the delimeter passed
+    */     
     std::vector<std::string> FileOps::split_buf(){
         std::vector<std::string> tokens;
         int start = 0;
@@ -84,6 +88,9 @@ namespace biti {
         return tokens;
     }
     
+    /*
+        Returns the file size change since the last read
+    */
     int FileOps::get_file_size_delta(){
         int sz = lseek(file.fd, 0, SEEK_END);
         if (sz == -1){
@@ -104,5 +111,12 @@ namespace biti {
                 return delta;      
             }            
         }
+    }
+
+    /*
+        Get the name of the file we are watching
+    */
+    std::string FileOps::get_file_name(){
+        return file.fpath;
     }
 }

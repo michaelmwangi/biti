@@ -10,6 +10,12 @@ namespace biti{
             exit(1);
         }else{
             std::cout<<"Using config file "+fname<<std::endl;
+            
+            // fill map of known delimeters
+            known_delimeters.insert(std::make_pair("\n", "NEWLINE"));
+            known_delimeters.insert(std::make_pair(",", "COMMA"));
+            known_delimeters.insert(std::make_pair(";", "SEMICOLON"));
+            known_delimeters.insert(std::make_pair(":", "COLON"));
         }
     }
 
@@ -17,6 +23,9 @@ namespace biti{
         config_file.close();
     }
 
+    /*
+    Extracts and stores the file config items from the json config file
+    **/
     void Config::process(){
         json json_config;
         

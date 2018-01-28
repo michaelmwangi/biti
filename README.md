@@ -29,3 +29,4 @@ At the moment am keeping things pretty straight forward and compiling can be eas
 4. Explore ways to add backends in a scaleable manner
 5. Add performance numbers 
 6. Add tests and coverage stuff
+7. Add support for 'space' delimeters eg TABs

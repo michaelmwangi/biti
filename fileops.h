@@ -17,6 +17,7 @@ namespace biti{
         public:
             FileOps(File file);     
             void evaluate();
+            std::string get_file_name();
             int get_file_size_delta();
     };    
 }
