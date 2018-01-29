@@ -9,7 +9,7 @@ namespace biti {
     
     /**
      * Reads upto bytesread from the current file offset    
-     * we will read upto this much of bytes from the file. If the file size increases as we are reading it will be caught in the next
+     * we will read upto this much of bytes from the file. If the file size increases as we are reading it will be caught in the next due to
      * inotify IN_MODIFY event and so on
      * */
     void FileOps::read_file(int bytesread){        
@@ -20,9 +20,8 @@ namespace biti {
         while(tot_read <= bytesread){
             if (num_read <= 0){
                 if(num_read == -1){
-                    perror("pread");
-                }
-                
+                    LOGGER->write("Could not successfully read "+file.fpath+" due to "+ strerror(errno), LogLevel::ERROR);
+                }                
                 break;
             }else{
                 if (tot_read < bytesread){
@@ -31,10 +30,8 @@ namespace biti {
                     num_read = pread(file.fd, store,  BUF_SIZE, file.curpos);
                     tot_read += num_read;
                 }
-
                 file.buf += store; 
                 file.curpos += tot_read;   
-
                 if (tot_read == bytesread){
                     break;
                 }
@@ -87,7 +84,10 @@ namespace biti {
         int start = 0;
         int end = file.buf.find(file.delimeter);
         while(end != std::string::npos){
-            tokens.emplace_back(file.buf.substr(start, end-start));
+            auto tok = file.buf.substr(start, end-start);
+            if(tok != ""){
+                tokens.emplace_back(tok);                                
+            }
             start = end+1;
             end = file.buf.find(file.delimeter, start);
         }
@@ -139,7 +139,7 @@ namespace biti {
     }
 
     /*
-        Get the file descriptor
+        Get the file descriptor number
     */
     int FileOps::get_file_fd(){
         return file.fd;
