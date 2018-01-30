@@ -8,14 +8,15 @@
 #include <vector>
 #include <cstring>
 #include <sstream>
+#include "json.hpp"
 #include "consts.h"
 #include "logger.h"
 
 
 namespace biti{
+    using json = nlohmann::json;
     struct File {
         int fd; // the open file descriptor
-        int wd; // the watch file desc // inotify stuff        
         int curpos; // the current file position                
         int size; // the size of the file since our last read
         int err; // the last error number // a error number of zero means that evrythinhg is good 
@@ -26,7 +27,7 @@ namespace biti{
         std::string buf; // the current data we have extracted from file but not yet processed
 
         File(std::string path, std::string del, std::vector<std::string> &patterns):
-            wd{-1},fpath{path}, curpos{0}, err{0}, size{0}, delimeter{del}, patterns {patterns}
+            fpath{path}, curpos{0}, err{0}, size{0}, delimeter{del}, patterns {patterns}
         {        
             int f_desc = open(fpath.c_str(), O_RDONLY);
             if(f_desc == -1){
@@ -40,6 +41,21 @@ namespace biti{
                 buf.reserve(BUF_SIZE);
             }            
         }
+
+        /*
+            Serlializes the curent state of the file object into a json object
+        */
+        json to_json(){
+            json state;
+            state["fd"] = fd;
+            state["curpos"] = curpos;
+            state["size"] = size;
+            state["err"] = err;
+            state["errmsg"] = errmsg;
+            state["fpath"] = fpath;
+            return state;
+        }
+
     };
 }
 

@@ -144,4 +144,13 @@ namespace biti {
     int FileOps::get_file_fd(){
         return file.fd;
     }
+
+    /*
+        Triggers the file serialize function and treturns the json object that
+        represents the necessary info for the current state of the file eg current file offset
+    */
+    json FileOps::dump_file_snapshot(){
+        LOGGER->write("Getting the json state of file "+file.fpath, LogLevel::DEBUG);
+        return file.to_json();
+    }
 }
