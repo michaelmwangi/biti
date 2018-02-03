@@ -1,5 +1,4 @@
 #include "watcher.h"
-#include "fileops.h"
 
 namespace biti {
     Watcher::Watcher(Config &config)
@@ -44,7 +43,21 @@ namespace biti {
             close(inotify_fd);
         }
     }
-
+    /*
+        Consumes tasks from the task queue and process them
+    */
+    void Watcher::process_bg_tasks(){
+        while(true){
+            auto task = task_queue.get_task();
+            switch(task.type){
+                case FILE_SAVE:
+                    // saving file to disk, arg_1 -> file name , arg_2-> file contents
+                    
+                default:
+                    // I dont know what to do with this task
+            }
+        }
+    }
     void Watcher::watch(){
         
         // TODO
@@ -66,6 +79,10 @@ namespace biti {
                 iter.second->evaluate();
             }
             
+            // launch the background processing thread 
+            // TODO provide a way to cancel tasks 
+            auto fut = std::async(std::launch::async, process_bg_tasks);
+
             // wait for new events
             // The loop blocks on read() call until we have an event available on the inotify_fd 
             while(true){
