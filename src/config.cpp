@@ -22,10 +22,22 @@ namespace biti{
     Config::~Config(){
         config_file.close();
     }
+    /*
+        Fetches a string item from the config and terminates the program if item is
+        mandatory and absent
+    */
+    std::string get_str_item(std::string item, bool mandatory){
+        auto res = json_config.value(item, ""); 
+        if(res.empty() && mandatory){
+            std::cerr<<"Could not find mandatory item "<<item<<" configured .. cannot continue!"<std::endl;
+            exit(1);
+        }
+        return res;
+    }
 
     /*
-    Extracts and stores the file config items from the json config file
-    **/
+        Extracts and stores the file config items from the json config file
+    */
     void Config::process(){
         json json_config;
         
@@ -37,12 +49,10 @@ namespace biti{
             std::cerr<<err.str()<<std::endl;
             exit(1);
         }
-        logfile = json_config.value("log_file", "");
+        logfile = get_str_item("log_file", true);
+        dbfile = get_str_item("db_file", true);
         
-        if(logfile.empty()){
-            std::cerr<<"Could not find logfile path and therefore cannot continue!"<<std::endl;
-            exit(1);
-        }
+        
         // initialize the logger 
         cur_logger = std::make_shared<biti::FileLogger>(logfile, biti::LogLevel::DEBUG); 
 

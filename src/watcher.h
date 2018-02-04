@@ -22,6 +22,7 @@ namespace biti {
     class Watcher {
         private:
             int inotify_fd;
+            int db_file_fd; 
             TaskQueue task_queue;
             std::unordered_map<int, std::unique_ptr<FileOps>> store;
         public:
