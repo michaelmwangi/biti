@@ -25,6 +25,7 @@ namespace biti {
             int db_file_fd; 
             TaskQueue task_queue;
             std::unordered_map<int, std::unique_ptr<FileOps>> store;
+            void init_db(std::string );
         public:
             Watcher(Config &config);
             ~Watcher();

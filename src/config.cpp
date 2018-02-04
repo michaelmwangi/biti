@@ -26,7 +26,7 @@ namespace biti{
         Fetches a string item from the config and terminates the program if item is
         mandatory and absent
     */
-    std::string get_str_item(std::string item, bool mandatory){
+    std::string Config::get_str_item(std::string item, bool mandatory){
         auto res = json_config.value(item, ""); 
         if(res.empty() && mandatory){
             std::cerr<<"Could not find mandatory item "<<item<<" configured .. cannot continue!"<std::endl;
@@ -34,6 +34,7 @@ namespace biti{
         }
         return res;
     }
+
 
     /*
         Extracts and stores the file config items from the json config file

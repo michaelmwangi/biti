@@ -44,7 +44,7 @@ namespace biti {
         }
     }
     /*
-        Consumes tasks from the task queue and process them
+       process task from the task queue
     */
     void Watcher::process_bg_tasks(){
         while(true){
@@ -58,6 +58,18 @@ namespace biti {
             }
         }
     }
+
+    /*
+        prepare the db backup file and set the file descriptor
+    */
+    void Watcher::init_db(std::string dbfile){
+        db_file_fd = open(dbfile, O_WRONLY|O_APPEND|O_CREATE, 0644);
+        if(db_file_fd == -1){
+            LOGGER->write("Could not initialize db file %s due to %s", dbfile, strerr(errno),
+                          LogLevel::SEVERE);
+        }
+    }
+
     void Watcher::watch(){
         
         // TODO

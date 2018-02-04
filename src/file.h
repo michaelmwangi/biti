@@ -37,7 +37,7 @@ namespace biti{
                 errmsg = msg.str();
                 LOGGER->write(msg.str(), LogLevel::ERROR);
             }else{
-                fd=f_desc;
+                fd = f_desc;
                 buf.reserve(BUF_SIZE);
             }            
         }

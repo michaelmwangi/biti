@@ -1,3 +1,5 @@
+This is a work in progress, things might and definitely will change :)
+
 # biti
 
 The name literally means nothing. It was the first thing that came to my head and I did not want to invest alot of time on it!
