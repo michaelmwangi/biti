@@ -20,7 +20,7 @@ namespace biti{
         JobType type;
         void *arg_1;
         void *arg_2;
-    }
+    };
 
     class TaskQueue{
         private:

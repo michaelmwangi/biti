@@ -17,17 +17,20 @@ namespace biti{
     class Config{
         private:
             std::vector<File> file_configs; // Configuration for each file we are watching
-            std::ifstream config_file;            
+            std::ifstream config_file;   
+            int save_time_ms;         
             std::string logfile; // name of the biti logfile
             std::string dbfile; // name of file which we will use as a DB
             std::map<std::string, std::string> known_delimeters; // a mapping of known delimeters that commonly used such as newlines, commas 
-            std::string get_str_item(std::string, bool);
+            template<typename T>
+            T get_item(const json &jconfig, std::string item);
         public:
             Config(std::string & fname);
             ~Config();            
             void process();
             std::string get_log_path();
             std::string get_db_path();
+            int get_save_time();
             std::vector<File> &get_file_configs();
     };
 }

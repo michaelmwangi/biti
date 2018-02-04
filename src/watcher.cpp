@@ -8,6 +8,7 @@ namespace biti {
             perror("inotify_init");
             exit(1);
         }
+        save_time_ms = config.get_save_time();
         auto fobjs = config.get_file_configs();
         for(auto fobj : fobjs){
             // make sure we add only regular files
@@ -49,13 +50,13 @@ namespace biti {
     void Watcher::process_bg_tasks(){
         while(true){
             auto task = task_queue.get_task();
-            switch(task.type){
-                case FILE_SAVE:
-                    // saving file to disk, arg_1 -> file name , arg_2-> file contents
+            // switch(task.type){
+            //     case FILE_SAVE:
+            //         // saving file to disk, arg_1 -> file name , arg_2-> file contents
                     
-                default:
-                    // I dont know what to do with this task
-            }
+            //     default:
+            //         // I dont know what to do with this task
+            // }
         }
     }
 
@@ -63,9 +64,9 @@ namespace biti {
         prepare the db backup file and set the file descriptor
     */
     void Watcher::init_db(std::string dbfile){
-        db_file_fd = open(dbfile, O_WRONLY|O_APPEND|O_CREATE, 0644);
+        db_file_fd = open(dbfile, O_WRONLY|O_APPEND|O_CREAT, 0644);
         if(db_file_fd == -1){
-            LOGGER->write("Could not initialize db file %s due to %s", dbfile, strerr(errno),
+            LOGGER->write("Could not initialize db file %s due to %s", dbfile, std::strerror(errno),
                           LogLevel::SEVERE);
         }
     }
@@ -93,7 +94,16 @@ namespace biti {
             
             // launch the background processing thread 
             // TODO provide a way to cancel tasks 
-            auto fut = std::async(std::launch::async, process_bg_tasks);
+            auto fut = std::async(std::launch::async, &Watcher::process_bg_tasks, this);
+            
+            // start of event loop
+
+            // struct pollfs fds[1];
+            // fds[0].fd = inotify_fd;
+            // fds[0].events = POLLIN;
+            // if(poll(&fds, 1, save_time)){
+
+            // }
 
             // wait for new events
             // The loop blocks on read() call until we have an event available on the inotify_fd 

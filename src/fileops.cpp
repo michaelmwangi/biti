@@ -20,7 +20,7 @@ namespace biti {
         while(tot_read <= bytesread){
             if (num_read <= 0){
                 if(num_read == -1){
-                    LOGGER->write("Could not successfully read "+file.fpath+" due to "+ strerror(errno), LogLevel::ERROR);
+                    LOGGER->write("Could not successfully read "+file.fpath+" due to "+ std::strerror(errno), LogLevel::ERROR);
                 }                
                 break;
             }else{

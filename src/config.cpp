@@ -22,15 +22,20 @@ namespace biti{
     Config::~Config(){
         config_file.close();
     }
+
+
     /*
         Fetches a string item from the config and terminates the program if item is
         mandatory and absent
     */
-    std::string Config::get_str_item(std::string item, bool mandatory){
-        auto res = json_config.value(item, ""); 
-        if(res.empty() && mandatory){
-            std::cerr<<"Could not find mandatory item "<<item<<" configured .. cannot continue!"<std::endl;
-            exit(1);
+    template<typename T>
+    T Config::get_item(const json &jconfig, std::string item){
+        T res;
+        try{
+            res = jconfig.at(item).get<T>();
+        }catch (json::out_of_range &e){            
+            std::cerr<<"Could not find mandatory item "<<item<<" configured .. cannot continue!"<<std::endl;
+            exit(1);            
         }
         return res;
     }
@@ -50,12 +55,19 @@ namespace biti{
             std::cerr<<err.str()<<std::endl;
             exit(1);
         }
-        logfile = get_str_item("log_file", true);
-        dbfile = get_str_item("db_file", true);
-        
-        
+        logfile = get_item<std::string>(json_config, "log_file");
+        dbfile = get_item<std::string>(json_config, "db_file");
+        save_time_ms = get_item<int>(json_config, "db_save_interval_ms");
         // initialize the logger 
-        cur_logger = std::make_shared<biti::FileLogger>(logfile, biti::LogLevel::DEBUG); 
+        cur_logger = std::make_shared<biti::FileLogger>(logfile, LogLevel::DEBUG); 
+
+        if(save_time_ms > MAX_SAVE_MS){
+            // LOGGER->write("Maximum allowed save interval is %d ms but was passed %d ", MAX_SAVE_MS, LogLevel::ERROR);
+            // LOGGER->write("Setting save interval to %d ms instead",MAX_SAVE_MS,
+            //                 LogLevel::WARNING);
+            save_time_ms = MAX_SAVE_MS;
+        }
+        
 
         json items;
         try{
@@ -107,5 +119,9 @@ namespace biti{
 
     std::vector<File> &Config::get_file_configs(){
         return file_configs;
+    }
+
+    int Config::get_save_time(){
+        return save_time_ms;
     }
 }

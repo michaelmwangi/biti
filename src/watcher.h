@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h> 
+#include <poll.h>
 #include <unordered_map>
 #include <sys/inotify.h>
 #include <sys/stat.h>
@@ -23,6 +24,7 @@ namespace biti {
         private:
             int inotify_fd;
             int db_file_fd; 
+            int save_time_ms; // time interval in ms to save to disk
             TaskQueue task_queue;
             std::unordered_map<int, std::unique_ptr<FileOps>> store;
             void init_db(std::string );
