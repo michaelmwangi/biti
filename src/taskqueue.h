@@ -47,10 +47,12 @@ namespace biti{
                 Removes and returns the first item from the queue
             */
             Task get_task(){
-                std::unique_lock<std::mutex> queue_guard(queue_lock);
-                while(notify.wait(queue_guard, [this]{return !queue.empty(); })){
+                std::unique_lock<std::mutex> queue_guard{queue_lock};
+                while(!queue.empty()){
+                    notify.wait(queue_guard);
                     auto data = queue.front();
                     queue.pop();
+                    queue_guard.unlock();
                     return data;
                 }        
             }

@@ -64,10 +64,10 @@ namespace biti {
         prepare the db backup file and set the file descriptor
     */
     void Watcher::init_db(std::string dbfile){
-        db_file_fd = open(dbfile, O_WRONLY|O_APPEND|O_CREAT, 0644);
+        db_file_fd = open(dbfile.c_str(), O_WRONLY|O_APPEND|O_CREAT, 0644);
         if(db_file_fd == -1){
-            LOGGER->write("Could not initialize db file %s due to %s", dbfile, std::strerror(errno),
-                          LogLevel::SEVERE);
+            // LOGGER->write("Could not initialize db file %s due to %s", dbfile, std::strerror(errno),
+            //               LogLevel::SEVERE);
         }
     }
 
