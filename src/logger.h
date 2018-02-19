@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <string.h>
 #include <iostream>
 #include <memory>
 #include <ctime>
@@ -28,7 +29,11 @@ namespace biti {
 
             static void create_file_logger(const std::string &);
 
-
+            std::string error_no_msg(){
+                // return a string version of the current errno
+                return (strerror(errno));
+            }
+            
             Logger() = default;
             
             virtual ~Logger() = default;

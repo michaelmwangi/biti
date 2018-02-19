@@ -97,41 +97,48 @@ namespace biti {
             auto fut = std::async(std::launch::async, &Watcher::process_bg_tasks, this);
             
             // start of event loop
-
-            // struct pollfs fds[1];
-            // fds[0].fd = inotify_fd;
-            // fds[0].events = POLLIN;
-            // if(poll(&fds, 1, save_time)){
-
-            // }
-
-            // wait for new events
-            // The loop blocks on read() call until we have an event available on the inotify_fd 
+            // we are using poll since its better than select and not using epoll variants as we are basically
+            // only watching one descriptor (inotify fd) thus making the code simple
             while(true){
-                char buf[BUF_SIZE] = {};
-                int len = read(inotify_fd, buf, BUF_SIZE);
-                if(len <= 0){
-                    continue;
-                }
-                const struct inotify_event *evt;
-                for(char *ptr=buf;ptr < buf+len;ptr += sizeof(struct inotify_event)+evt->len){
-                    evt = reinterpret_cast<inotify_event *>(ptr);
-                    if((evt->mask & IN_MODIFY) == IN_MODIFY){                        
-                        int _wd = evt->wd;
-                        auto it = store.find(_wd);
-                        if(it != store.end()){
-                            auto fileop = std::move(it->second);
-                            LOGGER->write("Changes detected in "+fileop->get_file_name()+" proceeding to evaluate", LogLevel::DEBUG);
-                            fileop->evaluate();
-                            LOGGER->write("Finished evaluating "+fileop->get_file_name(), LogLevel::DEBUG);
-                            store[_wd] = std::move(fileop);
-                        }else{
-                            LOGGER->write("Watch descriptor "+std::to_string(_wd)+" was not found in store ", LogLevel::ERROR);
-                        }
+                struct pollfd fds[1];
+                fds[0].fd = inotify_fd;
+                fds[0].events = POLLIN;
+                int ready = poll(fds, 1, save_time_ms);
 
+                if(ready < 0){
+                    // an error occured
+                    LOGGER->write("Error waiting for events "+LOGGER->error_no_msg(), LogLevel::ERROR); // TODO I think we can handle this better 
+                }else if(ready == 0){
+                    // the timeout expired -- time to save our current state to disk
+                    std::cout<<"saving state to disk"<<std::endl;
+                }else{
+                    // an inotify event is ready
+                    char buf[BUF_SIZE] = {};
+                    int len = read(inotify_fd, buf, BUF_SIZE);
+                    if(len <= 0){
+                        continue;
+                    }
+                    const struct inotify_event *evt;
+                    for(char *ptr=buf;ptr < buf+len;ptr += sizeof(struct inotify_event)+evt->len){
+                        evt = reinterpret_cast<inotify_event *>(ptr);
+                        if((evt->mask & IN_MODIFY) == IN_MODIFY){                        
+                            int _wd = evt->wd;
+                            auto it = store.find(_wd);
+                            if(it != store.end()){
+                                auto fileop = std::move(it->second);
+                                LOGGER->write("Changes detected in "+fileop->get_file_name()+" proceeding to evaluate", LogLevel::DEBUG);
+                                fileop->evaluate();
+                                LOGGER->write("Finished evaluating "+fileop->get_file_name(), LogLevel::DEBUG);
+                                store[_wd] = std::move(fileop);
+                            }else{
+                                LOGGER->write("Watch descriptor "+std::to_string(_wd)+" was not found in store ", LogLevel::ERROR);
+                            }
+
+                        }
                     }
                 }
-            }
+            }            
+
         }
         
     }

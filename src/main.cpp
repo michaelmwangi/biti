@@ -18,7 +18,7 @@ int main(int argc, char **argv){
         biti::Watcher watcher(config);
         watcher.watch();                
     }else{
-        std::cout<<"Please pass in the file path and log path as an argument in that order"<<std::endl;
+        std::cout<<"Please pass in the config file"<<std::endl;
     }
     
     return 0;
