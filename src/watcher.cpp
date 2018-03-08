@@ -50,13 +50,15 @@ namespace biti {
     void Watcher::process_bg_tasks(){
         while(true){
             auto task = task_queue.get_task();
-            // switch(task.type){
-            //     case FILE_SAVE:
-            //         // saving file to disk, arg_1 -> file name , arg_2-> file contents
-                    
-            //     default:
-            //         // I dont know what to do with this task
-            // }
+            switch(task.type){
+                case JobType::FILE_SAVE:
+                    // saving file to disk, arg_1 -> file name , arg_2-> file contents
+                    std::cout<<"Saving file"<<std::endl;
+                    LOGGER->write("Saving file to disk", LogLevel::DEBUG);
+                default:
+                    // I dont know what to do with this task
+                    LOGGER->write("Recieved unknown task....", LogLevel::WARNING);
+            }
         }
     }
 
@@ -66,8 +68,8 @@ namespace biti {
     void Watcher::init_db(std::string dbfile){
         db_file_fd = open(dbfile.c_str(), O_WRONLY|O_APPEND|O_CREAT, 0644);
         if(db_file_fd == -1){
-            // LOGGER->write("Could not initialize db file %s due to %s", dbfile, std::strerror(errno),
-            //               LogLevel::SEVERE);
+            LOGGER->write("Could not initialize db file "+dbfile +" "+ std::strerror(errno),
+                           LogLevel::SEVERE);
         }
     }
 
@@ -99,19 +101,28 @@ namespace biti {
             // start of event loop
             // we are using poll since its better than select and not using epoll variants as we are basically
             // only watching one descriptor (inotify fd) thus making the code simple
+            struct pollfd poll_fds;
             while(true){
-                struct pollfd fds[1];
-                fds[0].fd = inotify_fd;
-                fds[0].events = POLLIN;
-                int ready = poll(fds, 1, save_time_ms);
-
+                
+                poll_fds.fd = inotify_fd;
+                poll_fds.events = POLLIN;
+                int ready = poll(&poll_fds, 0, save_time_ms);
                 if(ready < 0){
                     // an error occured
-                    LOGGER->write("Error waiting for events "+LOGGER->error_no_msg(), LogLevel::ERROR); // TODO I think we can handle this better 
+                    LOGGER->write("Error waiting for events: "+LOGGER->error_no_msg(), LogLevel::ERROR); // TODO I think we can handle this better 
                 }else if(ready == 0){
                     // the timeout expired -- time to save our current state to disk
-                    std::cout<<"saving state to disk"<<std::endl;
+                    // push task to BG queue
+                    Task task;
+                    for(auto &it : store){
+                        auto snapshot = it.second->dump_file_snapshot();
+                        // std::cout<<snapshot<<std::endl;
+                    }
+                    task.created = time(nullptr);
+                    task.type = JobType::FILE_SAVE;
+                    // get the current state and serialize as string
                 }else{
+                    //TODO make sure we have a polling event    
                     // an inotify event is ready
                     char buf[BUF_SIZE] = {};
                     int len = read(inotify_fd, buf, BUF_SIZE);
@@ -133,7 +144,6 @@ namespace biti {
                             }else{
                                 LOGGER->write("Watch descriptor "+std::to_string(_wd)+" was not found in store ", LogLevel::ERROR);
                             }
-
                         }
                     }
                 }

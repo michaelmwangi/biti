@@ -16,11 +16,13 @@ namespace biti{
     };
 
     struct Task{
-        std::time_t arrived; // time we created the job
+
+        std::time_t created; // time we created the job
         JobType type;
-        void *arg_1;
-        void *arg_2;
+        std::string arg;
     };
+
+    
 
     class TaskQueue{
         private:
