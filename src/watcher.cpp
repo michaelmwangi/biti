@@ -106,9 +106,11 @@ namespace biti {
                 
                 poll_fds.fd = inotify_fd;
                 poll_fds.events = POLLIN;
-                int ready = poll(&poll_fds, 0, save_time_ms);
+                int ready = poll(&poll_fds, 1, save_time_ms);
+                
                 if(ready < 0){
-                    LOGGER->write("Error waiting for events: "+LOGGER->error_no_msg(), LogLevel::ERROR); // TODO I think we can handle this better 
+                     // TODO I think we can handle this better 
+                    LOGGER->write("Error waiting for events: "+LOGGER->error_no_msg(), LogLevel::ERROR);
                 }else if(ready == 0){
                     // the timeout expired -- time to save our current state to disk
                     // push task to background worker (queue)
