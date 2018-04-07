@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 project (Biti)
 
 find_library(PthreadLib pthread)
-
+    
 FILE(GLOB SOURCES
     *.h
     *.cpp)

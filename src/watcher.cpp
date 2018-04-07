@@ -51,7 +51,7 @@ namespace biti {
         while(true){
             auto task = task_queue.get_task();
             switch(task.type){
-                case JobType::FILE_SAVE:
+                case TaskType::FILE_SAVE:
                     // saving file to disk, arg_1 -> file name , arg_2-> file contents
                     std::cout<<"Saving file"<<std::endl;
                     LOGGER->write("Saving file to disk", LogLevel::DEBUG);
@@ -108,18 +108,17 @@ namespace biti {
                 poll_fds.events = POLLIN;
                 int ready = poll(&poll_fds, 0, save_time_ms);
                 if(ready < 0){
-                    // an error occured
                     LOGGER->write("Error waiting for events: "+LOGGER->error_no_msg(), LogLevel::ERROR); // TODO I think we can handle this better 
                 }else if(ready == 0){
                     // the timeout expired -- time to save our current state to disk
-                    // push task to BG queue
+                    // push task to background worker (queue)
                     Task task;
                     for(auto &it : store){
                         auto snapshot = it.second->dump_file_snapshot();
                         // std::cout<<snapshot<<std::endl;
                     }
                     task.created = time(nullptr);
-                    task.type = JobType::FILE_SAVE;
+                    task.type = TaskType::FILE_SAVE;
                     // get the current state and serialize as string
                 }else{
                     //TODO make sure we have a polling event    

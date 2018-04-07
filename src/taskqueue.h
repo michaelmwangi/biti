@@ -11,15 +11,18 @@
 
 namespace biti{
 
-    enum class JobType{
-        FILE_SAVE // background job to save file to disk
+    enum class TaskType{
+        FILE_SAVE, // background job to save file to disk
+        UNKNOWN
     };
 
     struct Task{
-
         std::time_t created; // time we created the job
-        JobType type;
+        TaskType type;
         std::string arg;
+
+        Task(): created{0}, type{TaskType::UNKNOWN}, arg{""}
+        {}
     };
 
     
@@ -28,7 +31,7 @@ namespace biti{
         private:
             std::queue<Task> queue;
             std::mutex queue_lock;
-            std::condition_variable notify;
+            std::condition_variable cond_var;
         public:
     
             /*
@@ -36,12 +39,11 @@ namespace biti{
             */
             void push(Task data){
                 std::unique_lock<std::mutex> queue_guard(queue_lock);
-                queue_guard.lock();
                 queue.push(data);
                 // unlock the mutex before notifying to avoid waking up a thread and 
                 // going to block again
                 queue_guard.unlock();
-                notify.notify_one();
+                cond_var.notify_one();
             }
             
             /*  
@@ -50,13 +52,19 @@ namespace biti{
             */
             Task get_task(){
                 std::unique_lock<std::mutex> queue_guard{queue_lock};
-                while(!queue.empty()){
-                    notify.wait(queue_guard);
-                    auto data = queue.front();
-                    queue.pop();
-                    queue_guard.unlock();
-                    return data;
+                // due to spurios wake ups we put the con variable waiting in a loop with the empty check
+                while(queue.empty()){                    
+                    cond_var.wait(queue_guard);                    
                 }        
+                auto data = queue.front();
+                queue.pop();
+                queue_guard.unlock();
+                return data;
+            }
+
+            int size(){
+                std::unique_lock<std::mutex> queue_guard{queue_lock};
+                return queue.size();
             }
     };
 
