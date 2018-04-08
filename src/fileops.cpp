@@ -15,9 +15,14 @@ namespace biti {
     void FileOps::read_file(int bytesread){        
         char store[BUF_SIZE] = {};
         int tot_read = 0;
-        int num_read = pread(file.fd, store,  BUF_SIZE, file.curpos);
+        int num_read = pread(file.fd, store, BUF_SIZE, file.curpos);
         tot_read = num_read;
+        if(bytesread < num_read){
+            // seems like there ws more data to read than we anticipated lets adjust
+            bytesread = num_read;
+        }
         while(tot_read <= bytesread){
+
             if (num_read <= 0){
                 if(num_read == -1){
                     LOGGER->write("Could not successfully read "+file.fpath+" due to "+ std::strerror(errno), LogLevel::ERROR);
@@ -30,6 +35,15 @@ namespace biti {
                     num_read = pread(file.fd, store,  BUF_SIZE, file.curpos);
                     tot_read += num_read;
                 }
+                
+                // Hack .. some editors add an implicit newline at the end of the file such that the file ends up with \n\n
+                // let's hunt for the extra one and remove it
+                if(store[num_read-1] == '\n' && store[num_read-2] == '\n'){
+                    store[num_read-1] = '\000';
+                    tot_read -= 1;
+                    bytesread -= 1;
+                }
+
                 file.buf += store; 
                 file.curpos += tot_read;   
                 if (tot_read == bytesread){
@@ -152,5 +166,5 @@ namespace biti {
     json FileOps::dump_file_snapshot(){
         LOGGER->write("Getting the json state of file "+file.fpath, LogLevel::DEBUG);
         return file.to_json();
-    }
+    } 
 }

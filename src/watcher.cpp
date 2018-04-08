@@ -117,8 +117,8 @@ namespace biti {
                     Task task;
                     for(auto &it : store){
                         auto snapshot = it.second->dump_file_snapshot();
-                        // std::cout<<snapshot<<std::endl;
-                    }
+                        std::cout<<snapshot<<std::endl;
+                    }   
                     task.created = time(nullptr);
                     task.type = TaskType::FILE_SAVE;
                     // get the current state and serialize as string
