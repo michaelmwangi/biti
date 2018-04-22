@@ -120,14 +120,17 @@ namespace biti {
                     // the timeout expired -- time to save our current state to disk
                     // push task to background worker (queue)
                     Task task;
+                    biti::json payload;
                     for(auto &it : store){
                         biti::json snapshot = it.second->dump_file_snapshot();
-                        task.arg = snapshot.dump();
-                        task.created = time(nullptr);
-                        task.type = TaskType::FILE_SAVE;
-                        task_queue.push(task);
+                        std::string name = it.second->get_file_name();
+                        payload[name] = snapshot;
+
                     }   
-                    
+                    task.arg = payload.dump();
+                    task.created = time(nullptr);
+                    task.type = TaskType::FILE_SAVE;
+                    task_queue.push(task);                    
                     // get the current state and serialize as string
                 }else{
                     //TODO make sure we have a polling event    
