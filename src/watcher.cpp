@@ -44,20 +44,25 @@ namespace biti {
             close(inotify_fd);
         }
     }
+
     /*
        process task from the task queue
     */
     void Watcher::process_bg_tasks(){
         while(true){
             auto task = task_queue.get_task();
+            std::string contents;
+            bool state = false;
             switch(task.type){
                 case TaskType::FILE_SAVE:
                     // saving file to disk, arg_1 -> file name , arg_2-> file contents
                     std::cout<<"Saving file"<<std::endl;
                     LOGGER->write("Saving file to disk", LogLevel::DEBUG);
+                    contents = task.arg;
+                    state = biti::create_snapshot("/mnt/programming/biti/biti.db", contents);
                 default:
                     // I dont know what to do with this task
-                    LOGGER->write("Recieved unknown task....", LogLevel::WARNING);
+                    LOGGER->write("Received unknown task....", LogLevel::WARNING);
             }
         }
     }
@@ -116,11 +121,13 @@ namespace biti {
                     // push task to background worker (queue)
                     Task task;
                     for(auto &it : store){
-                        auto snapshot = it.second->dump_file_snapshot();
-                        std::cout<<snapshot<<std::endl;
+                        biti::json snapshot = it.second->dump_file_snapshot();
+                        task.arg = snapshot.dump();
+                        task.created = time(nullptr);
+                        task.type = TaskType::FILE_SAVE;
+                        task_queue.push(task);
                     }   
-                    task.created = time(nullptr);
-                    task.type = TaskType::FILE_SAVE;
+                    
                     // get the current state and serialize as string
                 }else{
                     //TODO make sure we have a polling event    

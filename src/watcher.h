@@ -19,6 +19,7 @@
 #include "fileops.h"
 #include "logger.h"
 #include "taskqueue.h"
+#include "db/snapshot_db.h"
 
 namespace biti {
     class Watcher {
