@@ -5,12 +5,11 @@ namespace biti{
     Config::Config(std::string &fname):
     {
         conf_filename = fname;
-        config_file(conf_filename);
+        std::ifstream config_file(conf_filename);   
         if(!config_file.good()){
-            std::cout<<"Cannot open/read config file "+fname<<std::endl;
-            exit(1);
+            LOGGER->write("Cannot open config file "+fname, LogLevel::SEVERE);
         }else{
-            std::cout<<"Using config file "+fname<<std::endl;
+            LOGGER->write("Using config file "+fname, LogLevel::INFO);
             
             // fill map of known delimeters
             known_delimeters.insert(std::make_pair("NEWLINE", "\n"));
@@ -18,10 +17,7 @@ namespace biti{
             known_delimeters.insert(std::make_pair("SEMICOLON", ";"));
             known_delimeters.insert(std::make_pair("COLON", ":"));
         }
-    }
-
-    Config::~Config(){
-        config_file.close();
+        process();
     }
 
 
@@ -34,9 +30,8 @@ namespace biti{
         T res;
         try{
             res = jconfig.at(item).get<T>();
-        }catch (json::out_of_range &e){            
-            std::cerr<<"Could not find mandatory item "<<item<<" configured .. cannot continue!"<<std::endl;
-            exit(1);            
+        }catch (json::out_of_range &e){           
+            LOGGER->write("Mandatory item missing from config file "+item, LogLevel::SEVER);             
         }
         return res;
     }
@@ -73,8 +68,7 @@ namespace biti{
         try{
             items = json_config.at("items");
         }catch(json::out_of_range &exc){
-            std::cerr<<"Could not find items to work on and therefore cannot continue!"<<std::endl;
-            exit(1);
+           LOGGER->write("Could not find items to work on cannot continue!", LogLevel::SEVERE);
         }
         
         int item_counter = 0;
@@ -91,12 +85,12 @@ namespace biti{
             }catch(json::out_of_range &exc){
                 std::ostringstream msg;
                 msg << "Cannot evaluate item "<<item_counter<<" due to missing mandatory parameters "<<exc.what();
-                cur_logger->write(msg.str(), LogLevel::ERROR);                
+                LOGGER->write(msg.str(), LogLevel::ERROR);                
                 continue;
             }
 
             if(pats.empty()){
-                cur_logger->write("Could not find patterns for file "+fpath, LogLevel::ERROR);
+                LOGGER->write("Could not find patterns for file "+fpath, LogLevel::ERROR);
                 continue;
             }
 
