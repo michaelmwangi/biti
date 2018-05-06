@@ -117,6 +117,10 @@ namespace biti{
         return logfile;
     }
 
+    std::string Config::get_db_path(){
+        return dbfile;
+    }
+
     std::vector<File> &Config::get_file_configs(){
         return file_configs;
     }

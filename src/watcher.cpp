@@ -1,14 +1,14 @@
 #include "watcher.h"
 
 namespace biti {
-    Watcher::Watcher(Config &config)
+    Watcher::Watcher(Config &config):
+        config {config}
     {
         inotify_fd = inotify_init();
         if(inotify_fd == -1){
             perror("inotify_init");
             exit(1);
         }
-        save_time_ms = config.get_save_time();
         auto fobjs = config.get_file_configs();
         for(auto fobj : fobjs){
             // make sure we add only regular files
@@ -55,26 +55,13 @@ namespace biti {
             bool state = false;
             switch(task.type){
                 case TaskType::FILE_SAVE:
-                    // saving file to disk, arg_1 -> file name , arg_2-> file contents
-                    std::cout<<"Saving file"<<std::endl;
                     LOGGER->write("Saving file to disk", LogLevel::DEBUG);
                     contents = task.arg;
-                    state = biti::create_snapshot("/mnt/programming/biti/biti.db", contents);
+                    state = create_snapshot(config.get_db_path(), contents);
                 default:
                     // I dont know what to do with this task
                     LOGGER->write("Received unknown task....", LogLevel::WARNING);
             }
-        }
-    }
-
-    /*
-        prepare the db backup file and set the file descriptor
-    */
-    void Watcher::init_db(std::string dbfile){
-        db_file_fd = open(dbfile.c_str(), O_WRONLY|O_APPEND|O_CREAT, 0644);
-        if(db_file_fd == -1){
-            LOGGER->write("Could not initialize db file "+dbfile +" "+ std::strerror(errno),
-                           LogLevel::SEVERE);
         }
     }
 
@@ -111,7 +98,7 @@ namespace biti {
                 
                 poll_fds.fd = inotify_fd;
                 poll_fds.events = POLLIN;
-                int ready = poll(&poll_fds, 1, save_time_ms);
+                int ready = poll(&poll_fds, 1, config.get_save_time());
                 
                 if(ready < 0){
                      // TODO I think we can handle this better 
@@ -131,7 +118,6 @@ namespace biti {
                     task.created = time(nullptr);
                     task.type = TaskType::FILE_SAVE;
                     task_queue.push(task);                    
-                    // get the current state and serialize as string
                 }else{
                     //TODO make sure we have a polling event    
                     // an inotify event is ready

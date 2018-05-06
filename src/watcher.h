@@ -26,12 +26,11 @@ namespace biti {
         private:
             int inotify_fd;
             int db_file_fd; 
-            int save_time_ms; // time interval in ms to save to disk
+            Config &config;
             TaskQueue task_queue;
             // TODO consider using a denser map implementation as the std::unordered makes use of a linked list hence 
             // missing cache (cache misses)
             std::unordered_map<int, std::unique_ptr<FileOps>> store;
-            void init_db(std::string );
         public:
             Watcher(Config &config);
             ~Watcher();
