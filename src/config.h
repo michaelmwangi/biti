@@ -24,7 +24,7 @@ namespace biti{
             std::map<std::string, std::string> known_delimeters; // a mapping of known delimeters that commonly used such as newlines, commas 
             template<typename T>
             T get_item(const json &jconfig, std::string item);
-            void process();
+            void process(std::string);
         public:
             Config(std::string & fname);                   
             std::string get_log_path();

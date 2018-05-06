@@ -5,19 +5,16 @@ namespace biti{
     Config::Config(std::string &fname):
     {
         conf_filename = fname;
-        std::ifstream config_file(conf_filename);   
-        if(!config_file.good()){
-            LOGGER->write("Cannot open config file "+fname, LogLevel::SEVERE);
-        }else{
-            LOGGER->write("Using config file "+fname, LogLevel::INFO);
+{
+        LOGGER->write("Using config file "+fname, LogLevel::INFO);
             
-            // fill map of known delimeters
-            known_delimeters.insert(std::make_pair("NEWLINE", "\n"));
-            known_delimeters.insert(std::make_pair("COMMA", ","));
-            known_delimeters.insert(std::make_pair("SEMICOLON", ";"));
-            known_delimeters.insert(std::make_pair("COLON", ":"));
-        }
-        process();
+        // fill map of known delimeters
+        known_delimeters.insert(std::make_pair("NEWLINE", "\n"));
+        known_delimeters.insert(std::make_pair("COMMA", ","));
+        known_delimeters.insert(std::make_pair("SEMICOLON", ";"));
+        known_delimeters.insert(std::make_pair("COLON", ":"));
+        
+        process(conf_filename);
     }
 
 
@@ -40,7 +37,8 @@ namespace biti{
     /*
         Extracts and stores the file config items from the json config file
     */
-    void Config::process(){
+    void Config::process(std::string fname){
+        std::ifstream config_file(fname);   
         json json_config;
         
         try{
@@ -53,16 +51,10 @@ namespace biti{
         logfile = get_item<std::string>(json_config, "log_file");
         dbfile = get_item<std::string>(json_config, "db_file");
         save_time_ms = get_item<int>(json_config, "db_save_interval_ms");
-        // initialize the logger 
-        cur_logger = std::make_shared<biti::FileLogger>(logfile, LogLevel::DEBUG); 
-
-        if(save_time_ms > MAX_SAVE_MS){
-            // LOGGER->write("Maximum allowed save interval is %d ms but was passed %d ", MAX_SAVE_MS, LogLevel::ERROR);
-            // LOGGER->write("Setting save interval to %d ms instead",MAX_SAVE_MS,
-            //                 LogLevel::WARNING);
-            save_time_ms = MAX_SAVE_MS;
-        }
         
+        if(save_time_ms > MAX_SAVE_MS){            
+            save_time_ms = MAX_SAVE_MS;
+        }        
 
         json items;
         try{

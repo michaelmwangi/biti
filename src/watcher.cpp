@@ -74,8 +74,24 @@ namespace biti {
 
         // dbfile.read()
         
-        std::stringstream buf;
-        buf << dbfile.rdbuf();
+        // TODO what if db file does not exist
+        
+        json db_data;
+        
+        try{
+            dbfile >> db_data;
+        }catch (json::parse_error &e){
+            std::stringstream err;
+            err << e.what();
+            LOGGER->write("Cannot read db file "+config.get_db_path()+" "+err.str(), LogLevel::ERROR);
+            // remove corrupt db file
+            int res = remove(config.get_db_path().c_str());
+            if(res == 0){
+                LOGGER->write("Successfully removed corrupt DB file "+config.get_db_path(), LogLevel::INFO);
+            }else{
+                LOGGER->write("Could not remove corrupt db file due to "+std::string(strerror(errno))    , LogLevel::ERROR);
+            }
+        }
     }
 
 
