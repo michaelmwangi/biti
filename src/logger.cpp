@@ -55,5 +55,25 @@ namespace biti {
        }
    }
    
+   void FileLogger::log(LogLevel loglevel, const char *fmt, ...){
+       auto now = std::chrono::system_clock::now();
+       std::time_t ltime = std::chrono::system_clock::to_time_t(now);
+       std::string ptime = std::ctime(&ltime);       
+       ptime = ptime.replace(ptime.size()-1, 1, ""); // remove the newline
+
+       char log_buf[LOG_MAX_LEN];
+       va_list args;
+       va_start(args, fmt);
+       vsnprintf(log_buf, LOG_MAX_LEN, fmt, args);
+       va_end(args);
+       if(log_level != LogLevel::NONE && (loglevel == log_level || log_level == LogLevel::DEBUG)){           
+           log_stream <<"["<<ptime<<"]"<<" "<<"["<<get_log_level(loglevel)<<"] "<< log_buf <<std::endl;
+       }
+
+       if(loglevel == LogLevel::SEVERE){
+           exit(1);
+       }
+   }
+
    
 }

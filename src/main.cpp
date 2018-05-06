@@ -14,7 +14,6 @@ int main(int argc, char **argv){
     if (argc == 2){
         std::string conf_path(argv[1]);
         biti::Config config(conf_path);
-        config.process();
         biti::Watcher watcher(config);
         watcher.watch();                
     }else{

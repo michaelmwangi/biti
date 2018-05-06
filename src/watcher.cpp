@@ -65,14 +65,8 @@ namespace biti {
         }
     }
 
-    void init_from_db(){
+    void Watcher::init_from_db(){
         std::ifstream dbfile(config.get_db_path(), std::ifstream::read);
-        //get file lenght
-        // dbfile.seekg(0, dbfile.end);
-        // int len = dbfile.tellg();
-        // dbfile.seekg(0, dbfile.beg);
-
-        // dbfile.read()
         
         // TODO what if db file does not exist
         

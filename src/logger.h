@@ -11,6 +11,8 @@
 #include <cstring>
 #include <unordered_map>
 
+#include "consts.h"
+
 
 namespace biti {
     
@@ -38,6 +40,7 @@ namespace biti {
             
             virtual ~Logger() = default;
             virtual void write(const std::string&, LogLevel) = 0;
+            virtual void log(LogLevel, const char *, ...) = 0;
             std::string get_log_level(LogLevel);
             
             Logger(const Logger&) = delete;
@@ -53,6 +56,7 @@ namespace biti {
         public:
             FileLogger(const std::string &, LogLevel) ;
             void write(const std::string&, LogLevel) override;
+            void log(LogLevel, const char *, ...) override;
             
     };
 
