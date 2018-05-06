@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <ctime>
+#include <cstdarg>
 #include <chrono>
 #include <cstring>
 #include <unordered_map>
