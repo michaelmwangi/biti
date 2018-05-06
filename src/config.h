@@ -17,6 +17,7 @@ namespace biti{
     class Config{
         private:
             std::vector<File> file_configs; // Configuration for each file we are watching
+            std::string conf_filename;
             std::ifstream config_file;   
             int save_time_ms;         
             std::string logfile; // name of the biti logfile

@@ -6,6 +6,8 @@
 #include <memory>
 #include <future>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cstring>
 #include <unistd.h> 
 #include <poll.h>
@@ -31,6 +33,7 @@ namespace biti {
             // TODO consider using a denser map implementation as the std::unordered makes use of a linked list hence 
             // missing cache (cache misses)
             std::unordered_map<int, std::unique_ptr<FileOps>> store;
+            void init_from_db();
         public:
             Watcher(Config &config);
             ~Watcher();

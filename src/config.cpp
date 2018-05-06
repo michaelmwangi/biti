@@ -3,8 +3,9 @@
 
 namespace biti{
     Config::Config(std::string &fname):
-        config_file{fname}
     {
+        conf_filename = fname;
+        config_file(conf_filename);
         if(!config_file.good()){
             std::cout<<"Cannot open/read config file "+fname<<std::endl;
             exit(1);
@@ -52,8 +53,7 @@ namespace biti{
         }catch (json::parse_error &e){
             std::stringstream err;
             err << e.what();
-            std::cerr<<err.str()<<std::endl;
-            exit(1);
+            LOGGER->write("Cannot read config file "+conf_filename+" "+err.str(), LogLevel::SEVERE);
         }
         logfile = get_item<std::string>(json_config, "log_file");
         dbfile = get_item<std::string>(json_config, "db_file");

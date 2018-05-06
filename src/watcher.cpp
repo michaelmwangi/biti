@@ -65,6 +65,20 @@ namespace biti {
         }
     }
 
+    void init_from_db(){
+        std::ifstream dbfile(config.get_db_path(), std::ifstream::read);
+        //get file lenght
+        // dbfile.seekg(0, dbfile.end);
+        // int len = dbfile.tellg();
+        // dbfile.seekg(0, dbfile.beg);
+
+        // dbfile.read()
+        
+        std::stringstream buf;
+        buf << dbfile.rdbuf();
+    }
+
+
     void Watcher::watch(){
         
         // TODO
@@ -80,7 +94,8 @@ namespace biti {
         if(store.empty()){
             LOGGER->write("There are no files to watch!!", LogLevel::SEVERE);
         }else{
-            LOGGER->write("Starting the nights watch", LogLevel::DEBUG);
+            LOGGER->write("Starting the nights watch", LogLevel::INFO);
+            
             // process files for data already in the file
             for (const auto &iter : store){
                 iter.second->evaluate();
