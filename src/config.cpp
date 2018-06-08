@@ -2,12 +2,9 @@
 #include <iostream>
 
 namespace biti{
-    Config::Config(std::string &fname):
-    {
-        conf_filename = fname;
-{
-        LOGGER->write("Using config file "+fname, LogLevel::INFO);
-            
+
+    Config::Config(std::string &fname){
+        conf_filename = fname;    
         // fill map of known delimeters
         known_delimeters.insert(std::make_pair("NEWLINE", "\n"));
         known_delimeters.insert(std::make_pair("COMMA", ","));
@@ -28,7 +25,7 @@ namespace biti{
         try{
             res = jconfig.at(item).get<T>();
         }catch (json::out_of_range &e){           
-            LOGGER->write("Mandatory item missing from config file "+item, LogLevel::SEVER);             
+            LOGGER->write("Mandatory item missing from config file "+item, LogLevel::SEVERE);             
         }
         return res;
     }
@@ -38,17 +35,28 @@ namespace biti{
         Extracts and stores the file config items from the json config file
     */
     void Config::process(std::string fname){
+
         std::ifstream config_file(fname);   
         json json_config;
         
         try{
             config_file >> json_config;
         }catch (json::parse_error &e){
-            std::stringstream err;
+             std::stringstream err;
             err << e.what();
-            LOGGER->write("Cannot read config file "+conf_filename+" "+err.str(), LogLevel::SEVERE);
+            std::cerr<<err.str()<<std::endl;
+            exit(1);
         }
+
         logfile = get_item<std::string>(json_config, "log_file");
+
+        if(logfile.empty()){
+                    std::cerr<<"Could not find logfile path and therefore cannot continue!"<<std::endl;
+                    exit(1);
+        }
+        // initialize the logger 
+        cur_logger = std::make_shared<biti::FileLogger>(logfile, biti::LogLevel::DEBUG);
+
         dbfile = get_item<std::string>(json_config, "db_file");
         save_time_ms = get_item<int>(json_config, "db_save_interval_ms");
         

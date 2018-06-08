@@ -10,7 +10,6 @@ namespace biti{
 
 int main(int argc, char **argv){    
     // This is just a stub we are not even going to do any error checking
-
     if (argc == 2){
         std::string conf_path(argv[1]);
         biti::Config config(conf_path);

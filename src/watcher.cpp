@@ -10,6 +10,7 @@ namespace biti {
             exit(1);
         }
         auto fobjs = config.get_file_configs();
+        LOGGER->log(LogLevel::INFO, "startinig out with stuff %s", "mike");
         for(auto fobj : fobjs){
             // make sure we add only regular files
             struct stat stbuf;
@@ -66,7 +67,7 @@ namespace biti {
     }
 
     void Watcher::init_from_db(){
-        std::ifstream dbfile(config.get_db_path(), std::ifstream::read);
+        std::ifstream dbfile(config.get_db_path());
         
         // TODO what if db file does not exist
         
