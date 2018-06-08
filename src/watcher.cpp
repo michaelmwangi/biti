@@ -16,21 +16,21 @@ namespace biti {
             struct stat stbuf;
             int res = stat( fobj.fpath.c_str(), &stbuf);
             if (res == 0){
-                if(! S_ISREG(stbuf.st_mode)){
-                    LOGGER->write(fobj.fpath+" is not a regular file .. ignoring!", LogLevel::ERROR);                    
+                if(! S_ISREG(stbuf.st_mode)){    
+                    LOGGER->log(LogLevel::ERROR, " %s is not a regular file ..ignoring", fobj.fpath);                
                     continue;
                 }
             }else{                
-                LOGGER->write("Could not get "+fobj.fpath+" properties", LogLevel::ERROR);
+                LOGGER->log(LogLevel::ERROR, " Could not get %s properties", fobj.fpath);
                 continue;
             }
 
             int wd = inotify_add_watch(inotify_fd, fobj.fpath.c_str(), IN_MODIFY);
 
             if(wd == -1){
-                LOGGER->write("Cannot watch "+fobj.fpath+" : "+strerror(errno), LogLevel::ERROR);
+                LOGGER->log(LogLevel::ERROR, "Cannot watch %s due to %s", fobj.fpath, LOGGER->error_no_msg());
             }else{                
-                LOGGER->write("Adding "+fobj.fpath+" to the watch list", LogLevel::INFO);
+                LOGGER->log(LogLevel::INFO, "Adding %s to the watch list", fobj.fpath);
                 store.insert(std::make_pair(wd, std::make_unique<FileOps>(std::move(fobj))));                            
             }                        
         }        
@@ -56,12 +56,12 @@ namespace biti {
             bool state = false;
             switch(task.type){
                 case TaskType::FILE_SAVE:
-                    LOGGER->write("Saving file to disk", LogLevel::DEBUG);
+                    LOGGER->log(LogLevel::DEBUG, "Saving file to disk");
                     contents = task.arg;
                     state = create_snapshot(config.get_db_path(), contents);
                 default:
                     // I dont know what to do with this task
-                    LOGGER->write("Received unknown task....", LogLevel::WARNING);
+                    LOGGER->log(LogLevel::WARNING, "Received an unknown task...")
             }
         }
     }
@@ -79,6 +79,7 @@ namespace biti {
             std::stringstream err;
             err << e.what();
             LOGGER->write("Cannot read db file "+config.get_db_path()+" "+err.str(), LogLevel::ERROR);
+            
             // remove corrupt db file
             int res = remove(config.get_db_path().c_str());
             if(res == 0){
