@@ -40,7 +40,6 @@ namespace biti {
             Logger() = default;
             
             virtual ~Logger() = default;
-            virtual void write(const std::string&, LogLevel) = 0;
             virtual void log(LogLevel, const char *, ...) = 0;
             std::string get_log_level(LogLevel);
             
@@ -56,7 +55,6 @@ namespace biti {
             LogLevel log_level;
         public:
             FileLogger(const std::string &, LogLevel) ;
-            void write(const std::string&, LogLevel) override;
             void log(LogLevel, const char *, ...) override;
             
     };

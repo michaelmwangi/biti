@@ -30,12 +30,8 @@ namespace biti{
             fpath{path}, curpos{0}, err{0}, size{0}, delimeter{del}, patterns {patterns}
         {        
             int f_desc = open(fpath.c_str(), O_RDONLY);
-            if(f_desc == -1){
-                std::ostringstream msg;
-                msg << "Unable to open file "<<path<<" due to "<<std::strerror(errno);
-                err = errno;
-                errmsg = msg.str();
-                LOGGER->write(msg.str(), LogLevel::ERROR);
+            if(f_desc == -1){                
+                LOGGER->log(LogLevel::ERROR, "Unable to open file %s due to %s", path, LOGGER->error_no_msg());
             }else{
                 fd = f_desc;
                 buf.reserve(BUF_SIZE);

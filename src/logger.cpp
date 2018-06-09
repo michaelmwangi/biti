@@ -40,20 +40,6 @@ namespace biti {
             exit(1);
         }
     }
-
-   void FileLogger::write(const std::string & data, LogLevel loglevel){
-       auto now = std::chrono::system_clock::now();
-       std::time_t ltime = std::chrono::system_clock::to_time_t(now);
-       std::string ptime = std::ctime(&ltime);       
-       ptime = ptime.replace(ptime.size()-1, 1, ""); // remove the newline
-       if(log_level != LogLevel::NONE && (loglevel == log_level || log_level == LogLevel::DEBUG)){           
-           log_stream <<"["<<ptime<<"]"<<" "<<"["<<get_log_level(loglevel)<<"] "<< data <<std::endl;
-       }
-
-       if(loglevel == LogLevel::SEVERE){
-           exit(1);
-       }
-   }
    
    void FileLogger::log(LogLevel loglevel, const char *fmt, ...){
        auto now = std::chrono::system_clock::now();

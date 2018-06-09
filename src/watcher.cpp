@@ -61,7 +61,7 @@ namespace biti {
                     state = create_snapshot(config.get_db_path(), contents);
                 default:
                     // I dont know what to do with this task
-                    LOGGER->log(LogLevel::WARNING, "Received an unknown task...")
+                    LOGGER->log(LogLevel::WARNING, "Received an unknown task...");
             }
         }
     }
@@ -78,14 +78,13 @@ namespace biti {
         }catch (json::parse_error &e){
             std::stringstream err;
             err << e.what();
-            LOGGER->write("Cannot read db file "+config.get_db_path()+" "+err.str(), LogLevel::ERROR);
-            
+            LOGGER->log(LogLevel::ERROR, "Cannot read db file %s due to %s", config.get_db_path(), err.str());
             // remove corrupt db file
             int res = remove(config.get_db_path().c_str());
             if(res == 0){
-                LOGGER->write("Successfully removed corrupt DB file "+config.get_db_path(), LogLevel::INFO);
+                LOGGER->log(LogLevel::INFO, "Successfully removed corrupt DB file %s", config.get_db_path());
             }else{
-                LOGGER->write("Could not remove corrupt db file due to "+std::string(strerror(errno))    , LogLevel::ERROR);
+                LOGGER->log(LogLevel::ERROR, "Could not remove corrupt db file due to %s", LOGGER->error_no_msg());
             }
         }
     }
@@ -104,10 +103,9 @@ namespace biti {
             6. How do we store our current state in case we crash or we are restarted            
         */
         if(store.empty()){
-            LOGGER->write("There are no files to watch!!", LogLevel::SEVERE);
+            LOGGER->log(LogLevel::SEVERE, "There are no files to watch I quit");
         }else{
-            LOGGER->write("Starting the nights watch", LogLevel::INFO);
-            
+            LOGGER->log(LogLevel::INFO, "Starting the nights watch...");
             // process files for data already in the file
             for (const auto &iter : store){
                 iter.second->evaluate();
@@ -129,7 +127,7 @@ namespace biti {
                 
                 if(ready < 0){
                      // TODO I think we can handle this better 
-                    LOGGER->write("Error waiting for events: "+LOGGER->error_no_msg(), LogLevel::ERROR);
+                    LOGGER->log(LogLevel::ERROR, "Error waiting for events due to %s", LOGGER->error_no_msg());
                 }else if(ready == 0){
                     // the timeout expired -- time to save our current state to disk
                     // push task to background worker (queue)
@@ -161,12 +159,12 @@ namespace biti {
                             auto it = store.find(_wd);
                             if(it != store.end()){
                                 auto fileop = std::move(it->second);
-                                LOGGER->write("Changes detected in "+fileop->get_file_name()+" proceeding to evaluate", LogLevel::DEBUG);
+                                LOGGER->log(LogLevel::DEBUG, "Changes detected in %s proceeding to evaluate", fileop->get_file_name());
                                 fileop->evaluate();
-                                LOGGER->write("Finished evaluating "+fileop->get_file_name(), LogLevel::DEBUG);
+                                LOGGER->log(LogLevel::DEBUG, "Finished evaluating", fileop->get_file_name());
                                 store[_wd] = std::move(fileop);
                             }else{
-                                LOGGER->write("Watch descriptor "+std::to_string(_wd)+" was not found in store ", LogLevel::ERROR);
+                                LOGGER->log(LogLevel::ERROR, "Watch descriptor %s was not found in store", std::to_string(_wd));
                             }
                         }
                     }

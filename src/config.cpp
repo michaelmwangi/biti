@@ -24,8 +24,8 @@ namespace biti{
         T res;
         try{
             res = jconfig.at(item).get<T>();
-        }catch (json::out_of_range &e){           
-            LOGGER->write("Mandatory item missing from config file "+item, LogLevel::SEVERE);             
+        }catch (json::out_of_range &e){                       
+            LOGGER->log(LogLevel::SEVERE, "Mandatory item missing from config file %s", item);       
         }
         return res;
     }
@@ -51,8 +51,8 @@ namespace biti{
         logfile = get_item<std::string>(json_config, "log_file");
 
         if(logfile.empty()){
-                    std::cerr<<"Could not find logfile path and therefore cannot continue!"<<std::endl;
-                    exit(1);
+            std::cerr<<"Could not find logfile path and therefore cannot continue!"<<std::endl;
+            exit(1);
         }
         // initialize the logger 
         cur_logger = std::make_shared<biti::FileLogger>(logfile, biti::LogLevel::DEBUG);
@@ -68,7 +68,7 @@ namespace biti{
         try{
             items = json_config.at("items");
         }catch(json::out_of_range &exc){
-           LOGGER->write("Could not find items to work on cannot continue!", LogLevel::SEVERE);
+           LOGGER->log(LogLevel::SEVERE, "Could not find items to work on and cannot continue!!!");
         }
         
         int item_counter = 0;
@@ -83,14 +83,12 @@ namespace biti{
                 del = fileconfig.at("delimeter");
                 pats = fileconfig.at("patterns");
             }catch(json::out_of_range &exc){
-                std::ostringstream msg;
-                msg << "Cannot evaluate item "<<item_counter<<" due to missing mandatory parameters "<<exc.what();
-                LOGGER->write(msg.str(), LogLevel::ERROR);                
+                LOGGER->log(LogLevel::ERROR, "Cannot evaluate %s due to missing mandatory parameters %s", item_counter, exc.what());      
                 continue;
             }
 
             if(pats.empty()){
-                LOGGER->write("Could not find patterns for file "+fpath, LogLevel::ERROR);
+                LOGGER->log(LogLevel::ERROR, "Could not find patterns for file %s", fpath);
                 continue;
             }
 

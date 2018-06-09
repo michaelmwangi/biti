@@ -25,7 +25,7 @@ namespace biti {
 
             if (num_read <= 0){
                 if(num_read == -1){
-                    LOGGER->write("Could not successfully read "+file.fpath+" due to "+ std::strerror(errno), LogLevel::ERROR);
+                    LOGGER->log(LogLevel::ERROR, "Could not read %s successfully", LOGGER->error_no_msg());
                 }                
                 break;
             }else{
@@ -63,10 +63,10 @@ namespace biti {
         // match each segement with the set pattern and trigger the attached backend
         // after matching each segment discard it 
         int delta_sz = get_file_size_delta();
-        LOGGER->write("Size of new changes on file "+file.fpath+" "+std::to_string(delta_sz)+" bytes", LogLevel::DEBUG);
+        LOGGER->log(LogLevel::ERROR, "Size of new changes on file %s %s", file.fpath, std::to_string(delta_sz));
         if (delta_sz <= 0){            
             // no change detected
-            LOGGER->write("No changes detected on file "+file.fpath, LogLevel::DEBUG);
+            LOGGER->log(LogLevel::DEBUG, "No changes detected on file %s", file.fpath);
             return;
         }
         read_file(delta_sz);
@@ -110,12 +110,12 @@ namespace biti {
     
     void FileOps::pattern_match(const std::string &token){
         for(auto &pat : file.patterns){
-            LOGGER->write("Matching "+pat+" against "+token+" in file "+file.fpath, LogLevel::DEBUG);
+            LOGGER->log(LogLevel::DEBUG, "Matching %s against %s in file %s", pat, token, file.fpath);
             auto pos = token.find(pat);
             if(pos == std::string::npos){
-                LOGGER->write("Match not found for pattern "+pat+" in file "+file.fpath, LogLevel::DEBUG);
+                LOGGER->log(LogLevel::DEBUG, "Match not found for pattern %s in file %s", pat, file.fpath);
             }else{
-                LOGGER->write("Match found for pattern "+pat+" in file "+file.fpath+" triggering backend ", LogLevel::DEBUG);
+                LOGGER->log(LogLevel::DEBUG, "Match found for pattern %s in file %s proceeding to trigger attached backend", pat, file.fpath);
             }
         }
     }
@@ -164,7 +164,7 @@ namespace biti {
         represents the necessary info for the current state of the file eg current file offset
     */
     json FileOps::dump_file_snapshot(){
-        LOGGER->write("Getting the json state of file "+file.fpath, LogLevel::DEBUG);
+        LOGGER->log(LogLevel::DEBUG, "Getting the json state of file %s", file.fpath);
         return file.to_json();
     } 
 }
